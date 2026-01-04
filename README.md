@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FitLog - Exercise Tracker
+
+A modern, Next.js-based exercise tracking application that helps you log workouts, track progress, and monitor your fitness journey.
+
+## Features
+
+- **Exercise Selection**: Browse and search through a comprehensive list of exercises
+- **Category Filtering**: Filter exercises by muscle group (Chest, Back, Shoulders, Arms, Legs, Core)
+- **Workout Logging**: Log exercises with sets, reps, and weight for any date (today or past)
+- **History Tracking**: View your workout history and see your personal records (max reps and max weight)
+- **Local Storage**: All data is stored locally in your browser
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ installed
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone the repository or navigate to the project directory:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd fitlog
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+1. **Browse Exercises**: Navigate to `/exercises` to see all available exercises
+2. **Search & Filter**: Use the search bar to find exercises by name, or filter by category
+3. **Log Workout**: Click on an exercise to log a workout
+   - Select a date (today or any past date)
+   - Add sets with reps and weight
+   - Save your workout
+4. **View History**: After logging, view your exercise history to see past workouts and personal records
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+fitlog/
+  app/                    # Next.js App Router pages
+    exercises/           # Exercise-related pages
+      [id]/              # Dynamic exercise routes
+        entry/           # Workout entry page
+        history/         # Exercise history page
+  components/            # React components
+  lib/                   # Utility functions
+    exercises.ts        # Exercise data
+    storage.ts          # LocalStorage utilities
+  types/                 # TypeScript type definitions
+```
 
-## Deploy on Vercel
+## Technology Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Framework**: Next.js 16+ (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Storage**: Browser LocalStorage
+- **Date Handling**: date-fns
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment on Vercel
+
+The easiest way to deploy FitLog is using [Vercel](https://vercel.com):
+
+1. Push your code to a GitHub repository
+2. Import the project on [Vercel](https://vercel.com/new)
+3. Vercel will automatically detect Next.js and configure the build settings
+4. Click "Deploy" and your app will be live!
+
+### Manual Deployment
+
+```bash
+npm run build
+npm run start
+```
+
+## Data Storage
+
+All workout data is stored in the browser's LocalStorage. This means:
+- Data persists between sessions
+- Data is specific to each browser/device
+- No backend or database required
+- Data is private and never sent to a server
+
+## License
+
+This project is open source and available for personal use.
