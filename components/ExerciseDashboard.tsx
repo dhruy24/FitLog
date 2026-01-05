@@ -59,22 +59,22 @@ export default function ExerciseDashboard({ exerciseId, exerciseName }: Exercise
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
         <Link
           href={`/exercises/${exerciseId}/entry`}
-          className="px-6 py-3 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors font-medium"
+          className="px-6 py-3 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors font-medium text-center min-h-[44px] flex items-center justify-center"
         >
           Log New Workout
         </Link>
         <Link
           href={`/exercises/${exerciseId}/history`}
-          className="px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium text-zinc-900 dark:text-zinc-100"
+          className="px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium text-zinc-900 dark:text-zinc-100 text-center min-h-[44px] flex items-center justify-center"
         >
           View History
         </Link>
         <Link
           href="/exercises"
-          className="px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium text-zinc-900 dark:text-zinc-100"
+          className="px-6 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium text-zinc-900 dark:text-zinc-100 text-center min-h-[44px] flex items-center justify-center"
         >
           Back to Exercises
         </Link>
@@ -82,20 +82,20 @@ export default function ExerciseDashboard({ exerciseId, exerciseName }: Exercise
 
       {/* Previous Best Stats */}
       {(previousBest.maxReps > 0 || previousBest.maxWeight > 0) && (
-        <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <div className="p-3 sm:p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
           <div className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
             Previous Best Stats
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-1">Max Reps</div>
-              <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                 {previousBest.maxReps}
               </div>
             </div>
             <div>
               <div className="text-xs text-zinc-600 dark:text-zinc-400 mb-1">Max Weight (kg)</div>
-              <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                 {previousBest.maxWeight}
               </div>
             </div>
@@ -107,14 +107,14 @@ export default function ExerciseDashboard({ exerciseId, exerciseName }: Exercise
       <div className="space-y-4">
         {/* Metric Selector for Best Workout */}
         {lastWorkout && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
             <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Best Workout by:
             </label>
             <select
               value={selectedMetric}
               onChange={(e) => setSelectedMetric(e.target.value as BestWorkoutMetric)}
-              className="px-3 py-1 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+              className="px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400 min-h-[44px]"
             >
               <option value="volume">Total Volume</option>
               <option value="weight">Max Weight</option>
@@ -128,7 +128,7 @@ export default function ExerciseDashboard({ exerciseId, exerciseName }: Exercise
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Last Workout */}
           {lastWorkout ? (
-            <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <div className="p-3 sm:p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
               <div className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Last Workout
               </div>
@@ -139,14 +139,14 @@ export default function ExerciseDashboard({ exerciseId, exerciseName }: Exercise
               <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
                 <Link
                   href={`/exercises/${exerciseId}/edit/${lastWorkout.id}`}
-                  className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium"
+                  className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium min-h-[44px] flex items-center"
                 >
                   Edit this workout →
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <div className="p-3 sm:p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
               <div className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Last Workout
               </div>
@@ -158,7 +158,7 @@ export default function ExerciseDashboard({ exerciseId, exerciseName }: Exercise
 
           {/* Best Workout */}
           {bestWorkout ? (
-            <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <div className="p-3 sm:p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
               <div className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Best Workout ({bestWorkout.metricName})
               </div>
@@ -178,14 +178,14 @@ export default function ExerciseDashboard({ exerciseId, exerciseName }: Exercise
               <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
                 <Link
                   href={`/exercises/${exerciseId}/edit/${bestWorkout.workout.id}`}
-                  className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium"
+                  className="text-sm text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium min-h-[44px] flex items-center"
                 >
                   Edit this workout →
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <div className="p-3 sm:p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
               <div className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Best Workout
               </div>

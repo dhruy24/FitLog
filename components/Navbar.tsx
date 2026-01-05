@@ -10,6 +10,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [username, setUsername] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in from localStorage
@@ -48,6 +49,15 @@ export default function Navbar() {
 
   const isHomePage = pathname === '/exercises' || pathname === '/';
 
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    closeMobileMenu();
+  }, [pathname]);
+
   return (
     <>
       <nav className="w-full bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
@@ -70,8 +80,8 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* Navigation Items */}
-            <div className="flex items-center gap-4">
+            {/* Desktop Navigation Items */}
+            <div className="hidden md:flex items-center gap-4">
               <Link
                 href="/exercises"
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -101,7 +111,7 @@ export default function Navbar() {
                   </span>
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 text-sm font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                    className="px-4 py-2 text-sm font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors min-h-[44px]"
                   >
                     Logout
                   </button>
@@ -109,13 +119,86 @@ export default function Navbar() {
               ) : (
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="px-4 py-2 text-sm font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+                  className="px-4 py-2 text-sm font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors min-h-[44px]"
                 >
                   Login
                 </button>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <Link
+                  href="/exercises"
+                  onClick={closeMobileMenu}
+                  className={`block px-4 py-3 text-base font-medium rounded-lg transition-colors min-h-[44px] flex items-center ${
+                    pathname === '/exercises' || pathname === '/'
+                      ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
+                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  Exercises
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={closeMobileMenu}
+                  className={`block px-4 py-3 text-base font-medium rounded-lg transition-colors min-h-[44px] flex items-center ${
+                    pathname === '/dashboard'
+                      ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
+                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                {isLoggedIn ? (
+                  <div className="px-4 py-3 space-y-2">
+                    <div className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
+                      {username}
+                    </div>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        closeMobileMenu();
+                      }}
+                      className="w-full px-4 py-3 text-base font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors min-h-[44px]"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setShowLoginModal(true);
+                      closeMobileMenu();
+                    }}
+                    className="w-full px-4 py-3 text-base font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors min-h-[44px]"
+                  >
+                    Login
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ProfileSelector from "@/components/ProfileSelector";
@@ -19,6 +19,13 @@ export const metadata: Metadata = {
   description: "Track your workouts, log exercises, and monitor your progress",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +37,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Navbar />
-        <div className="fixed top-20 right-4 z-50">
+        <div className="fixed top-20 right-4 bottom-auto md:bottom-auto md:top-20 md:right-4 z-50">
           <ProfileSelector />
         </div>
         {children}

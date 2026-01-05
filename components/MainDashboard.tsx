@@ -116,16 +116,16 @@ export default function MainDashboard() {
       <Breadcrumbs />
       
       <div>
-        <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+        <h1 className="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
           Dashboard
         </h1>
-        <p className="text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
           Your workout history organized by day
         </p>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
           <div className="text-sm text-zinc-600 dark:text-zinc-400 mb-1">Total Days</div>
           <div className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
@@ -148,7 +148,7 @@ export default function MainDashboard() {
 
       {/* Overall Progress Graphs */}
       {daysData.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Daily Volume Chart */}
           <div className="p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
             <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
@@ -232,7 +232,7 @@ function DayCard({ day, isExpanded, expandedExercise, onToggleDay, onToggleExerc
                 {format(parseISO(day.date), 'MMM d, yyyy')}
               </span>
             </div>
-            <div className="grid grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm">
               <div>
                 <span className="text-zinc-600 dark:text-zinc-400">Exercises: </span>
                 <span className="font-medium text-zinc-900 dark:text-zinc-100">{exerciseCount}</span>
@@ -314,7 +314,7 @@ function ExerciseDayItem({ exercise, workouts, isExpanded, onToggle }: ExerciseD
                 {exercise.category}
               </span>
             </div>
-            <div className="flex gap-4 text-sm text-zinc-600 dark:text-zinc-400">
+            <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-zinc-600 dark:text-zinc-400">
               <span>{workouts.length} {workouts.length === 1 ? 'workout' : 'workouts'}</span>
               <span>{totalSets} {totalSets === 1 ? 'set' : 'sets'}</span>
               <span>{totalVolume.toLocaleString()} kg volume</span>
@@ -398,11 +398,11 @@ function DailyVolumeChart({ daysData }: { daysData: DayWorkouts[] }) {
   const maxVolume = Math.max(...last30Days.map(d => d.volume), 1);
 
   return (
-    <div className="h-48 flex items-end gap-1">
+    <div className="h-32 sm:h-48 flex items-end gap-0.5 sm:gap-1 overflow-x-auto">
       {last30Days.map((day, i) => (
         <div
           key={i}
-          className="flex-1 bg-zinc-900 dark:bg-zinc-100 rounded-t hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+          className="flex-1 min-w-[8px] bg-zinc-900 dark:bg-zinc-100 rounded-t hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
           style={{ height: `${(day.volume / maxVolume) * 100}%` }}
           title={`${format(parseISO(day.date), 'MMM d')}: ${day.volume.toLocaleString()} kg`}
         />
@@ -506,13 +506,13 @@ function WorkoutCalendarHeatmap({ daysData }: { daysData: DayWorkouts[] }) {
   
   // Calculate square size based on view to fit without scrolling
   const getSquareSize = () => {
-    if (view === 'week') return 'w-10 h-10';
-    if (view === 'month') return 'w-4 h-4';
-    return 'w-2.5 h-2.5';
+    if (view === 'week') return 'w-8 h-8 sm:w-10 sm:h-10';
+    if (view === 'month') return 'w-3 h-3 sm:w-4 sm:h-4';
+    return 'w-2 h-2 sm:w-2.5 sm:h-2.5';
   };
 
   const squareSize = getSquareSize();
-  const gapSize = view === 'week' ? 'gap-2' : view === 'month' ? 'gap-1' : 'gap-0.5';
+  const gapSize = view === 'week' ? 'gap-1 sm:gap-2' : view === 'month' ? 'gap-0.5 sm:gap-1' : 'gap-0.5';
 
   return (
     <div className="w-full">
@@ -521,7 +521,7 @@ function WorkoutCalendarHeatmap({ daysData }: { daysData: DayWorkouts[] }) {
         <div className="flex gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
           <button
             onClick={() => setView('week')}
-            className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+            className={`px-2 sm:px-3 py-1.5 sm:py-1 text-xs font-medium rounded transition-colors min-h-[44px] sm:min-h-0 ${
               view === 'week'
                 ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
                 : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100'
@@ -531,7 +531,7 @@ function WorkoutCalendarHeatmap({ daysData }: { daysData: DayWorkouts[] }) {
           </button>
           <button
             onClick={() => setView('month')}
-            className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+            className={`px-2 sm:px-3 py-1.5 sm:py-1 text-xs font-medium rounded transition-colors min-h-[44px] sm:min-h-0 ${
               view === 'month'
                 ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
                 : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100'
@@ -541,7 +541,7 @@ function WorkoutCalendarHeatmap({ daysData }: { daysData: DayWorkouts[] }) {
           </button>
           <button
             onClick={() => setView('year')}
-            className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+            className={`px-2 sm:px-3 py-1.5 sm:py-1 text-xs font-medium rounded transition-colors min-h-[44px] sm:min-h-0 ${
               view === 'year'
                 ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
                 : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100'
@@ -552,19 +552,19 @@ function WorkoutCalendarHeatmap({ daysData }: { daysData: DayWorkouts[] }) {
         </div>
       </div>
 
-      <div className="flex gap-2 w-full">
+      <div className="flex gap-1 sm:gap-2 w-full overflow-x-auto">
         {/* Day labels */}
-        <div className="flex flex-col gap-1 pr-2 flex-shrink-0">
+        <div className="flex flex-col gap-0.5 sm:gap-1 pr-1 sm:pr-2 flex-shrink-0">
           <div className="h-4"></div>
           {dayLabels.map((label, i) => (
-            <div key={i} className={`${squareSize} text-xs text-zinc-600 dark:text-zinc-400 flex items-center`}>
+            <div key={i} className={`${squareSize} text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 flex items-center`}>
               {view === 'week' ? label : i % 2 === 1 ? label : ''}
             </div>
           ))}
         </div>
         
         {/* Calendar grid - constrained to fit without scrolling */}
-        <div className={`flex ${gapSize} flex-1 min-w-0 flex-wrap`} style={{ 
+        <div className={`flex ${gapSize} flex-1 min-w-0`} style={{ 
           maxWidth: '100%',
           justifyContent: 'flex-start'
         }}>

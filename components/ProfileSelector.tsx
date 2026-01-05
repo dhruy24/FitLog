@@ -53,13 +53,13 @@ export default function ProfileSelector() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors min-h-[44px] text-xs md:text-sm font-medium"
       >
-        <span className="text-sm font-medium">
+        <span className="font-medium max-w-[100px] md:max-w-none truncate">
           {currentProfile?.name || 'Select Profile'}
         </span>
         <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -74,13 +74,13 @@ export default function ProfileSelector() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full mt-2 right-0 z-20 w-64 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg">
-            <div className="p-2">
+          <div className="absolute top-full mt-2 right-0 z-20 w-64 md:w-64 max-w-[calc(100vw-2rem)] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg">
+            <div className="p-2 max-h-[70vh] overflow-y-auto">
               {profiles.map((profile) => (
                 <button
                   key={profile.id}
                   onClick={() => handleProfileChange(profile.id)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                  className={`w-full text-left px-3 py-3 rounded-lg text-sm transition-colors min-h-[44px] flex items-center ${
                     profile.id === currentProfileId
                       ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
                       : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
@@ -95,7 +95,7 @@ export default function ProfileSelector() {
                     setIsOpen(false);
                     router.push('/profile');
                   }}
-                  className="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                  className="w-full text-left px-3 py-3 rounded-lg text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 min-h-[44px] flex items-center"
                 >
                   Manage Profiles
                 </button>
