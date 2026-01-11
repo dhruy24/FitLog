@@ -1,11 +1,13 @@
 import Link from 'next/link';
-import { predefinedExercises, getCategories } from '@/lib/exercises';
+import { getExercises } from '@/lib/exercises-server';
 import ExerciseList from '@/components/ExerciseList';
 import Breadcrumbs from '@/components/Breadcrumbs';
 
-export default function ExercisesPage() {
-  // Only pass predefined exercises from server, custom exercises will be loaded on client
-  const categories = getCategories();
+export default async function ExercisesPage() {
+  // Fetch exercises from database (server-side), custom exercises will be loaded on client
+  const exercises = await getExercises();
+  // Get categories from exercises
+  const categories = Array.from(new Set(exercises.map(ex => ex.category)));
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black py-4 sm:py-8 px-4">
@@ -27,7 +29,7 @@ export default function ExercisesPage() {
             + Add Exercise
           </Link>
         </div>
-        <ExerciseList exercises={predefinedExercises} categories={categories} />
+        <ExerciseList exercises={exercises} categories={categories} />
       </div>
     </div>
   );

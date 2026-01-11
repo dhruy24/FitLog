@@ -3,48 +3,45 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [username, setUsername] = useState('');
+  const [user, setUser] = useState<User | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const storedUser = typeof window !== 'undefined' ? localStorage.getItem('fitlog-user') : null;
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setIsLoggedIn(true);
-        setUsername(user.username || 'User');
-      } catch (error) {
-        // Invalid stored data
-      }
-    }
+    const supabase = createClient();
+
+    // Check initial auth state
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username.trim()) {
-      const userData = {
-        username: username.trim(),
-        loginTime: new Date().toISOString(),
-      };
-      localStorage.setItem('fitlog-user', JSON.stringify(userData));
-      setIsLoggedIn(true);
-      setShowLoginModal(false);
-      setUsername('');
-    }
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/exercises');
+    router.refresh();
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('fitlog-user');
-    setIsLoggedIn(false);
-    setUsername('');
-    router.push('/exercises');
+  const getUserDisplayName = () => {
+    if (!user) return '';
+    return user.user_metadata?.name || user.email || 'User';
   };
 
   const isHomePage = pathname === '/exercises' || pathname === '/';
@@ -104,10 +101,10 @@ export default function Navbar() {
               </Link>
 
               {/* Login/User Section */}
-              {isLoggedIn ? (
+              {user ? (
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-zinc-700 dark:text-zinc-300">
-                    {username}
+                    {getUserDisplayName()}
                   </span>
                   <button
                     onClick={handleLogout}
@@ -117,12 +114,20 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="px-4 py-2 text-sm font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors min-h-[44px]"
-                >
-                  Login
-                </button>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/auth/login"
+                    className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors min-h-[44px] flex items-center"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="px-4 py-2 text-sm font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors min-h-[44px] flex items-center"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -170,10 +175,10 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
-                {isLoggedIn ? (
+                {user ? (
                   <div className="px-4 py-3 space-y-2">
                     <div className="text-sm text-zinc-700 dark:text-zinc-300 mb-2">
-                      {username}
+                      {getUserDisplayName()}
                     </div>
                     <button
                       onClick={() => {
@@ -186,15 +191,22 @@ export default function Navbar() {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => {
-                      setShowLoginModal(true);
-                      closeMobileMenu();
-                    }}
-                    className="w-full px-4 py-3 text-base font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors min-h-[44px]"
-                  >
-                    Login
-                  </button>
+                  <div className="px-4 py-3 space-y-2">
+                    <Link
+                      href="/auth/login"
+                      onClick={closeMobileMenu}
+                      className="block w-full px-4 py-3 text-base font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors min-h-[44px] flex items-center"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/auth/signup"
+                      onClick={closeMobileMenu}
+                      className="block w-full px-4 py-3 text-base font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors min-h-[44px] flex items-center"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>
@@ -202,59 +214,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          onClick={() => setShowLoginModal(false)}
-        >
-          <div
-            className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-full max-w-md mx-4 border border-zinc-200 dark:border-zinc-800"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-              Login
-            </h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-              Enter your name to personalize your experience
-            </p>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your name"
-                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
-                  autoFocus
-                  required
-                />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors font-medium"
-                >
-                  Login
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowLoginModal(false);
-                    setUsername('');
-                  }}
-                  className="px-4 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors font-medium text-zinc-900 dark:text-zinc-100"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </>
   );
 }

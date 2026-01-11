@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black py-8 px-4">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black py-4 sm:py-8 px-4">
       <div className="max-w-7xl mx-auto text-center py-12">
         <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
           Exercise Not Found
@@ -20,5 +20,6 @@ export default function NotFound() {
     </div>
   );
 }
+
 
 

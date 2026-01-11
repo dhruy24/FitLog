@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns';
 import { WorkoutLog, MaxStats, BestWorkoutMetric, BestWorkoutResult } from '@/types';
-import { getWorkouts, getMaxStats, getLastWorkout, getBestWorkout } from '@/lib/storage';
+import { getWorkouts, getMaxStats, getLastWorkout, getBestWorkout } from '@/lib/storage/index';
 import SetList from './SetList';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -23,9 +23,9 @@ export default function ExerciseHistory({ exerciseId, exerciseName }: ExerciseHi
   const [selectedMetric, setSelectedMetric] = useState<BestWorkoutMetric>('volume');
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadData = () => {
-    const workoutData = getWorkouts(exerciseId);
-    const stats = getMaxStats(exerciseId);
+  const loadData = async () => {
+    const workoutData = await getWorkouts(exerciseId);
+    const stats = await getMaxStats(exerciseId);
     
     // Sort workouts by date (newest first)
     workoutData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -34,11 +34,11 @@ export default function ExerciseHistory({ exerciseId, exerciseName }: ExerciseHi
     setPreviousBest(stats);
     
     // Load last workout
-    const last = getLastWorkout(exerciseId);
+    const last = await getLastWorkout(exerciseId);
     setLastWorkout(last);
     
     // Load best workout by selected metric
-    const best = getBestWorkout(exerciseId, selectedMetric);
+    const best = await getBestWorkout(exerciseId, selectedMetric);
     setBestWorkout(best);
     
     setIsLoading(false);

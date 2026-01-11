@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Exercise, WorkoutLog, WorkoutMetrics } from '@/types';
 import { getExerciseList, getExerciseById } from '@/lib/exercises';
-import { getWorkouts, calculateWorkoutMetrics } from '@/lib/storage';
+import { getWorkouts, calculateWorkoutMetrics } from '@/lib/storage/index';
 import { format, parseISO, isToday, isYesterday, isThisWeek, isThisMonth, subDays, startOfDay } from 'date-fns';
 import Link from 'next/link';
 import Breadcrumbs from './Breadcrumbs';
@@ -27,12 +27,12 @@ export default function MainDashboard() {
     loadDashboardData();
   }, []);
 
-  const loadDashboardData = () => {
-    const exercises = getExerciseList();
+  const loadDashboardData = async () => {
+    const exercises = await getExerciseList();
     setAllExercises(exercises);
 
     // Get all workouts (no filter)
-    const allWorkouts = getWorkouts();
+    const allWorkouts = await getWorkouts();
     
     // Group workouts by date
     const workoutsByDate = new Map<string, WorkoutLog[]>();
@@ -46,20 +46,20 @@ export default function MainDashboard() {
     });
 
     // Create day data with exercises
-    const days: DayWorkouts[] = Array.from(workoutsByDate.entries())
-      .map(([date, workouts]) => {
+    const days: DayWorkouts[] = await Promise.all(Array.from(workoutsByDate.entries())
+      .map(async ([date, workouts]) => {
         // Group workouts by exercise
         const exercisesMap = new Map<string, { exercise: Exercise; workouts: WorkoutLog[] }>();
         
-        workouts.forEach(workout => {
-          const exercise = getExerciseById(workout.exerciseId);
+        for (const workout of workouts) {
+          const exercise = await getExerciseById(workout.exerciseId);
           if (exercise) {
             if (!exercisesMap.has(exercise.id)) {
               exercisesMap.set(exercise.id, { exercise, workouts: [] });
             }
             exercisesMap.get(exercise.id)!.workouts.push(workout);
           }
-        });
+        }
 
         // Calculate total volume for the day
         let totalVolume = 0;
@@ -74,8 +74,10 @@ export default function MainDashboard() {
           exercises: exercisesMap,
           totalVolume,
         };
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Newest first
+      }));
+    
+    // Sort by date (newest first)
+    days.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     setDaysData(days);
     setIsLoading(false);

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Profile } from '@/types';
-import { getProfiles, createProfile, deleteProfile, updateProfile, getCurrentProfileId, setCurrentProfile } from '@/lib/storage';
+import { getProfiles, createProfile, deleteProfile, updateProfile, getCurrentProfileId, setCurrentProfile } from '@/lib/storage/index';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Breadcrumbs from './Breadcrumbs';
@@ -14,6 +14,7 @@ export default function ProfileManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [currentProfileId, setCurrentProfileIdState] = useState<string | null>(null);
 
   useEffect(() => {
     loadProfiles();
@@ -26,14 +27,17 @@ export default function ProfileManager() {
     }
   }, [message]);
 
-  const loadProfiles = () => {
-    const allProfiles = getProfiles();
+  const loadProfiles = async () => {
+    const allProfiles = await getProfiles();
+    const currentId = await getCurrentProfileId();
+    setCurrentProfileIdState(currentId);
     
     // If no profiles exist, create a default one
     if (allProfiles.length === 0) {
       try {
-        const defaultProfile = createProfile('Default Profile');
+        const defaultProfile = await createProfile('Default Profile');
         setProfiles([defaultProfile]);
+        setCurrentProfileIdState(defaultProfile.id);
       } catch (error: any) {
         setMessage({ type: 'error', text: error.message });
       }
@@ -42,14 +46,14 @@ export default function ProfileManager() {
     }
   };
 
-  const handleCreateProfile = () => {
+  const handleCreateProfile = async () => {
     if (!newProfileName.trim()) {
       setMessage({ type: 'error', text: 'Please enter a profile name' });
       return;
     }
 
     try {
-      const newProfile = createProfile(newProfileName);
+      const newProfile = await createProfile(newProfileName);
       setProfiles([...profiles, newProfile]);
       setNewProfileName('');
       setMessage({ type: 'success', text: 'Profile created successfully!' });
@@ -63,14 +67,14 @@ export default function ProfileManager() {
     setEditName(profile.name);
   };
 
-  const handleSaveEdit = (profileId: string) => {
+  const handleSaveEdit = async (profileId: string) => {
     if (!editName.trim()) {
       setMessage({ type: 'error', text: 'Profile name cannot be empty' });
       return;
     }
 
     try {
-      updateProfile(profileId, editName);
+      await updateProfile(profileId, editName);
       setProfiles(profiles.map(p => p.id === profileId ? { ...p, name: editName.trim() } : p));
       setEditingId(null);
       setEditName('');
@@ -80,20 +84,21 @@ export default function ProfileManager() {
     }
   };
 
-  const handleDeleteProfile = (profileId: string) => {
+  const handleDeleteProfile = async (profileId: string) => {
     if (!confirm('Are you sure you want to delete this profile? All workout data for this profile will be permanently deleted.')) {
       return;
     }
 
     try {
-      deleteProfile(profileId);
+      await deleteProfile(profileId);
       const updated = profiles.filter(p => p.id !== profileId);
       setProfiles(updated);
       
       // If deleted profile was current, switch to first available
-      const currentId = getCurrentProfileId();
+      const currentId = await getCurrentProfileId();
       if (currentId === profileId && updated.length > 0) {
-        setCurrentProfile(updated[0].id);
+        await setCurrentProfile(updated[0].id);
+        setCurrentProfileIdState(updated[0].id);
         router.refresh();
         window.location.reload();
       }
@@ -104,13 +109,12 @@ export default function ProfileManager() {
     }
   };
 
-  const handleSwitchProfile = (profileId: string) => {
-    setCurrentProfile(profileId);
+  const handleSwitchProfile = async (profileId: string) => {
+    await setCurrentProfile(profileId);
+    setCurrentProfileIdState(profileId);
     router.refresh();
     window.location.reload();
   };
-
-  const currentProfileId = getCurrentProfileId();
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">

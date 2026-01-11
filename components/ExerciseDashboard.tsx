@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { WorkoutLog, MaxStats, BestWorkoutMetric, BestWorkoutResult } from '@/types';
-import { getMaxStats, getLastWorkout, getBestWorkout } from '@/lib/storage';
+import { getMaxStats, getLastWorkout, getBestWorkout } from '@/lib/storage/index';
+import { getExerciseById } from '@/lib/exercises';
 import SetList from './SetList';
 import Link from 'next/link';
 import Breadcrumbs from './Breadcrumbs';
@@ -13,32 +14,79 @@ interface ExerciseDashboardProps {
   exerciseName: string;
 }
 
-export default function ExerciseDashboard({ exerciseId, exerciseName }: ExerciseDashboardProps) {
+export default function ExerciseDashboard({ exerciseId, exerciseName: initialExerciseName }: ExerciseDashboardProps) {
   const [previousBest, setPreviousBest] = useState<MaxStats>({ maxReps: 0, maxWeight: 0 });
   const [lastWorkout, setLastWorkout] = useState<WorkoutLog | null>(null);
   const [bestWorkout, setBestWorkout] = useState<BestWorkoutResult | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<BestWorkoutMetric>('volume');
   const [isLoading, setIsLoading] = useState(true);
+  const [exerciseName, setExerciseName] = useState(initialExerciseName);
+  const [exerciseNotFound, setExerciseNotFound] = useState(false);
+
+  // Update exercise name when prop changes
+  useEffect(() => {
+    if (initialExerciseName) {
+      setExerciseName(initialExerciseName);
+      setExerciseNotFound(false);
+    }
+  }, [initialExerciseName]);
 
   useEffect(() => {
-    loadDashboardData();
-  }, [exerciseId, selectedMetric]);
+    const loadDashboardData = async () => {
+      setIsLoading(true);
+      // Load previous best stats
+      const allStats = await getMaxStats(exerciseId);
+      setPreviousBest(allStats);
+      
+      // Load last workout
+      const last = await getLastWorkout(exerciseId);
+      setLastWorkout(last);
+      
+      // Load best workout by selected metric
+      const best = await getBestWorkout(exerciseId, selectedMetric);
+      setBestWorkout(best);
+      
+      setIsLoading(false);
+    };
 
-  const loadDashboardData = () => {
-    // Load previous best stats
-    const allStats = getMaxStats(exerciseId);
-    setPreviousBest(allStats);
+    const initializeData = async () => {
+      // Load exercise name if not provided (for custom exercises)
+      if (!exerciseName) {
+        const exercise = await getExerciseById(exerciseId);
+        if (exercise) {
+          setExerciseName(exercise.name);
+        } else {
+          setExerciseNotFound(true);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Load dashboard data once we have the exercise name
+      await loadDashboardData();
+    };
     
-    // Load last workout
-    const last = getLastWorkout(exerciseId);
-    setLastWorkout(last);
-    
-    // Load best workout by selected metric
-    const best = getBestWorkout(exerciseId, selectedMetric);
-    setBestWorkout(best);
-    
-    setIsLoading(false);
-  };
+    initializeData();
+  }, [exerciseId, selectedMetric, exerciseName]);
+
+  if (exerciseNotFound) {
+    return (
+      <div className="w-full max-w-4xl mx-auto text-center py-12">
+        <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+          Exercise Not Found
+        </h1>
+        <p className="text-zinc-600 dark:text-zinc-400 mb-8">
+          The exercise you're looking for doesn't exist.
+        </p>
+        <Link
+          href="/exercises"
+          className="px-6 py-3 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors font-medium inline-block"
+        >
+          Back to Exercises
+        </Link>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

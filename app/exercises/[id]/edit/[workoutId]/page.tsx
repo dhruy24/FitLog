@@ -1,4 +1,4 @@
-import { getExerciseById } from '@/lib/exercises';
+import { getExerciseById } from '@/lib/exercises-server';
 import { notFound } from 'next/navigation';
 import ExerciseEntry from '@/components/ExerciseEntry';
 
@@ -8,7 +8,7 @@ interface ExerciseEditPageProps {
 
 export default async function ExerciseEditPage({ params }: ExerciseEditPageProps) {
   const { id, workoutId } = await params;
-  const exercise = getExerciseById(id);
+  const exercise = await getExerciseById(id);
 
   if (!exercise) {
     notFound();

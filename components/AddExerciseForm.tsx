@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Exercise } from '@/types';
-import { saveCustomExercise } from '@/lib/storage';
+import { saveCustomExercise } from '@/lib/storage/index';
 import { generateExerciseId, getCategories, getMuscleGroups } from '@/lib/exercises';
 import Breadcrumbs from './Breadcrumbs';
 
@@ -15,10 +15,20 @@ export default function AddExerciseForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const categories = getCategories();
-  const muscleGroups = getMuscleGroups();
+  const [categories, setCategories] = useState<string[]>([]);
+  const [muscleGroups, setMuscleGroups] = useState<string[]>([]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const loadData = async () => {
+      const cats = await getCategories();
+      const groups = await getMuscleGroups();
+      setCategories(cats);
+      setMuscleGroups(groups);
+    };
+    loadData();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim() || !category || !muscleGroup) {
@@ -27,6 +37,7 @@ export default function AddExerciseForm() {
     }
 
     setIsSaving(true);
+    setMessage(null);
     
     try {
       const exercise: Exercise = {
@@ -36,7 +47,7 @@ export default function AddExerciseForm() {
         muscleGroup,
       };
 
-      saveCustomExercise(exercise);
+      await saveCustomExercise(exercise);
       setMessage({ type: 'success', text: 'Exercise added successfully!' });
       
       // Redirect to exercises page after a short delay

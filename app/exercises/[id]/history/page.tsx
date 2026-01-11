@@ -1,4 +1,4 @@
-import { getExerciseById } from '@/lib/exercises';
+import { getExerciseById } from '@/lib/exercises-server';
 import { notFound } from 'next/navigation';
 import ExerciseHistory from '@/components/ExerciseHistory';
 
@@ -8,7 +8,7 @@ interface ExerciseHistoryPageProps {
 
 export default async function ExerciseHistoryPage({ params }: ExerciseHistoryPageProps) {
   const { id } = await params;
-  const exercise = getExerciseById(id);
+  const exercise = await getExerciseById(id);
 
   if (!exercise) {
     notFound();

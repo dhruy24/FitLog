@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Exercise } from '@/types';
-import { getCustomExercises } from '@/lib/storage';
+import { getCustomExercises } from '@/lib/storage/index';
 import ExerciseCard from './ExerciseCard';
 import ExerciseSearch from './ExerciseSearch';
 import CategoryFilter from './CategoryFilter';
@@ -19,13 +19,30 @@ export default function ExerciseList({ exercises: predefinedExercises, categorie
 
   useEffect(() => {
     // Load custom exercises on client side
-    const custom = getCustomExercises();
-    setCustomExercises(custom);
+    const loadCustomExercises = async () => {
+      const custom = await getCustomExercises();
+      setCustomExercises(custom);
+    };
+    loadCustomExercises();
   }, []);
 
-  // Merge predefined and custom exercises
+  // Merge predefined and custom exercises, removing duplicates
   const allExercises = useMemo(() => {
-    return [...predefinedExercises, ...customExercises];
+    // Create a Map to deduplicate by ID (custom exercises take precedence)
+    const exerciseMap = new Map<string, Exercise>();
+    
+    // First add database exercises
+    predefinedExercises.forEach(ex => {
+      exerciseMap.set(ex.id, ex);
+    });
+    
+    // Then add custom exercises (they will overwrite database exercises with same ID)
+    customExercises.forEach(ex => {
+      exerciseMap.set(ex.id, ex);
+    });
+    
+    // Convert map back to array
+    return Array.from(exerciseMap.values());
   }, [predefinedExercises, customExercises]);
 
   // Get unique categories from all exercises

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Profile } from '@/types';
-import { getProfiles, getCurrentProfileId, setCurrentProfile, createProfile } from '@/lib/storage';
+import { getProfiles, getCurrentProfileId, setCurrentProfile, createProfile } from '@/lib/storage/index';
 import { useRouter } from 'next/navigation';
 
 export default function ProfileSelector() {
@@ -15,14 +15,14 @@ export default function ProfileSelector() {
     loadProfiles();
   }, []);
 
-  const loadProfiles = () => {
-    const allProfiles = getProfiles();
-    const currentId = getCurrentProfileId();
+  const loadProfiles = async () => {
+    const allProfiles = await getProfiles();
+    const currentId = await getCurrentProfileId();
     
     // If no profiles exist, create a default one
     if (allProfiles.length === 0) {
       try {
-        const defaultProfile = createProfile('Default Profile');
+        const defaultProfile = await createProfile('Default Profile');
         setProfiles([defaultProfile]);
         setCurrentProfileIdState(defaultProfile.id);
       } catch (error) {
@@ -34,8 +34,8 @@ export default function ProfileSelector() {
     }
   };
 
-  const handleProfileChange = (profileId: string) => {
-    setCurrentProfile(profileId);
+  const handleProfileChange = async (profileId: string) => {
+    await setCurrentProfile(profileId);
     setCurrentProfileIdState(profileId);
     setIsOpen(false);
     // Reload the page to refresh all data

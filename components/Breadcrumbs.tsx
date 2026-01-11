@@ -122,3 +122,4 @@ function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
   return items;
 }
 
+

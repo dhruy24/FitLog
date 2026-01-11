@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { WorkoutSet, WorkoutLog, MaxStats, BestWorkoutMetric, BestWorkoutResult } from '@/types';
-import { saveWorkout, updateWorkout, getWorkoutById, getMaxStats, getWorkouts, getLastWorkout, getBestWorkout } from '@/lib/storage';
+import { saveWorkout, updateWorkout, getWorkoutById, getMaxStats, getWorkouts, getLastWorkout, getBestWorkout } from '@/lib/storage/index';
 import SetForm from './SetForm';
 import SetList from './SetList';
 import { useRouter } from 'next/navigation';
@@ -30,28 +30,28 @@ export default function ExerciseEntry({ exerciseId, exerciseName, workoutId }: E
 
   useEffect(() => {
     // Load workout data if in edit mode
-    if (isEditMode && workoutId) {
-      const workout = getWorkoutById(workoutId);
-      if (workout) {
-        setSelectedDate(workout.date);
-        setSets(workout.sets);
+    const loadData = async () => {
+      if (isEditMode && workoutId) {
+        const workout = await getWorkoutById(workoutId);
+        if (workout) {
+          setSelectedDate(workout.date);
+          setSets(workout.sets);
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }
-    
-    // Load previous best stats, last workout, and max workout (exclude current workout if editing)
-    const loadWorkoutData = () => {
+      
+      // Load previous best stats, last workout, and max workout (exclude current workout if editing)
       const excludeId = isEditMode ? workoutId : undefined;
       
       // Load previous best stats
-      const allStats = getMaxStats(exerciseId);
+      const allStats = await getMaxStats(exerciseId);
       
       if (isEditMode && workoutId) {
         // If editing, we need to calculate stats excluding the current workout
-        const workout = getWorkoutById(workoutId);
+        const workout = await getWorkoutById(workoutId);
         if (workout) {
           // Get all workouts except the one being edited
-          const otherWorkouts = getWorkouts(exerciseId).filter((w: WorkoutLog) => w.id !== workoutId);
+          const otherWorkouts = (await getWorkouts(exerciseId)).filter((w: WorkoutLog) => w.id !== workoutId);
           
           let maxReps = 0;
           let maxWeight = 0;
@@ -73,15 +73,15 @@ export default function ExerciseEntry({ exerciseId, exerciseName, workoutId }: E
       }
       
       // Load last workout
-      const last = getLastWorkout(exerciseId, excludeId);
+      const last = await getLastWorkout(exerciseId, excludeId);
       setLastWorkout(last);
       
       // Load best workout by selected metric
-      const best = getBestWorkout(exerciseId, selectedMetric, excludeId);
+      const best = await getBestWorkout(exerciseId, selectedMetric, excludeId);
       setBestWorkout(best);
     };
     
-    loadWorkoutData();
+    loadData();
   }, [isEditMode, workoutId, exerciseId, selectedMetric]);
 
   useEffect(() => {
@@ -100,13 +100,14 @@ export default function ExerciseEntry({ exerciseId, exerciseName, workoutId }: E
     setSets(sets.filter((_, i) => i !== index));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (sets.length === 0) {
       setMessage({ type: 'error', text: 'Please add at least one set' });
       return;
     }
 
     setIsSaving(true);
+    setMessage(null);
     
     try {
       if (isEditMode && workoutId) {
@@ -117,7 +118,7 @@ export default function ExerciseEntry({ exerciseId, exerciseName, workoutId }: E
           exerciseId,
           sets,
         };
-        updateWorkout(workoutId, workoutLog);
+        await updateWorkout(workoutId, workoutLog);
         setMessage({ type: 'success', text: 'Workout updated successfully!' });
       } else {
         // Create new workout
@@ -127,7 +128,7 @@ export default function ExerciseEntry({ exerciseId, exerciseName, workoutId }: E
           exerciseId,
           sets,
         };
-        saveWorkout(workoutLog);
+        await saveWorkout(workoutLog);
         setMessage({ type: 'success', text: 'Workout saved successfully!' });
       }
       
@@ -135,12 +136,12 @@ export default function ExerciseEntry({ exerciseId, exerciseName, workoutId }: E
       setTimeout(() => {
         router.push(`/exercises/${exerciseId}/history`);
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
       setMessage({ 
         type: 'error', 
-        text: isEditMode 
+        text: error.message || (isEditMode 
           ? 'Failed to update workout. Please try again.' 
-          : 'Failed to save workout. Please try again.' 
+          : 'Failed to save workout. Please try again.')
       });
     } finally {
       setIsSaving(false);
