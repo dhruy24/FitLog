@@ -26,6 +26,7 @@ export interface Profile {
   id: string;
   name: string;
   createdAt: string;
+  updatedAt?: string; // Optional for backward compatibility
 }
 
 export interface WorkoutMetrics {

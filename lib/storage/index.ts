@@ -42,11 +42,12 @@ export async function getProfiles(): Promise<Profile[]> {
   if (authenticated) {
     const profile = await supabaseStorage.getProfile();
     if (!profile) return [];
-    // Convert Supabase profile to Profile type (remove updatedAt if present)
+    // Convert Supabase profile to Profile type
     return [{
       id: profile.id,
       name: profile.name,
       createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
     }];
   }
   return localStorageStorage.getProfiles();
