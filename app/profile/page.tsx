@@ -1,4 +1,13 @@
+import type { Metadata } from 'next';
 import ProfileManager from '@/components/ProfileManager';
+import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Profile Management',
+  description: 'Manage your FitLog profile and workout settings. Customize your fitness tracking experience.',
+  url: '/profile',
+  noIndex: true, // Don't index user-specific pages
+});
 
 export default function ProfilePage() {
   return (

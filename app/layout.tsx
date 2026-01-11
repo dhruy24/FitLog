@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ProfileSelector from "@/components/ProfileSelector";
 import Navbar from "@/components/Navbar";
+import { generateMetadata as generateSEOMetadata, SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,10 +15,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "FitLog - Exercise Tracker",
-  description: "Track your workouts, log exercises, and monitor your progress",
-};
+export const metadata: Metadata = generateSEOMetadata({
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  url: "/",
+});
 
 export const viewport: Viewport = {
   width: "device-width",

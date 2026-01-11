@@ -1,7 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getExercises } from '@/lib/exercises-server';
 import ExerciseList from '@/components/ExerciseList';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Exercise Library',
+  description: 'Browse our comprehensive library of exercises including chest, back, shoulders, arms, legs, and core workouts. Track your workouts and build strength.',
+  keywords: ['exercise library', 'workout exercises', 'gym exercises', 'fitness exercises', 'strength training exercises'],
+  url: '/exercises',
+});
 
 export default async function ExercisesPage() {
   // Fetch exercises from database (server-side), custom exercises will be loaded on client
