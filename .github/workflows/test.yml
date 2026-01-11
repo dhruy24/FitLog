@@ -18,27 +18,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Determine working directory
+        id: set-workdir
+        run: |
+          if [ -f "package.json" ]; then
+            echo "workdir=." >> $GITHUB_OUTPUT
+          elif [ -d "fitlog" ] && [ -f "fitlog/package.json" ]; then
+            echo "workdir=./fitlog" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Could not find package.json in root or fitlog directory"
+            exit 1
+          fi
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache-dependency-path: ${{ steps.set-workdir.outputs.workdir }}/package-lock.json
 
       - name: Install dependencies
-        working-directory: ./fitlog
+        working-directory: ${{ steps.set-workdir.outputs.workdir }}
         run: npm ci
 
       - name: Run linter
-        working-directory: ./fitlog
+        working-directory: ${{ steps.set-workdir.outputs.workdir }}
         run: npm run lint
 
       - name: Run tests
-        working-directory: ./fitlog
+        working-directory: ${{ steps.set-workdir.outputs.workdir }}
         run: npm test -- --coverage
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
-          directory: ./fitlog/coverage
+          directory: ${{ steps.set-workdir.outputs.workdir }}/coverage
           fail_ci_if_error: false
