@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { getExerciseById } from '@/lib/exercises-server';
 import ExerciseDashboard from '@/components/ExerciseDashboard';
-import { generateExerciseMetadata } from '@/lib/seo';
-import StructuredData, { generateExerciseSchema } from '@/components/StructuredData';
+import { generateExerciseMetadata, generateExerciseSchema } from '@/lib/seo';
+import StructuredData from '@/components/StructuredData';
 
 interface ExerciseDashboardPageProps {
   params: Promise<{ id: string }>;

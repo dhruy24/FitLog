@@ -121,9 +121,9 @@ export default function ExerciseEntry({ exerciseId, exerciseName, workoutId }: E
         await updateWorkout(workoutId, workoutLog);
         setMessage({ type: 'success', text: 'Workout updated successfully!' });
       } else {
-        // Create new workout
+        // Create new workout with proper UUID
         const workoutLog: WorkoutLog = {
-          id: `${exerciseId}-${Date.now()}`,
+          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${exerciseId}-${Date.now()}`,
           date: selectedDate,
           exerciseId,
           sets,

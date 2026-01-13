@@ -147,3 +147,75 @@ export function generateExerciseMetadata(
     type: 'article',
   });
 }
+
+/**
+ * Generate WebApplication schema for the main site
+ */
+export function generateWebApplicationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    applicationCategory: 'HealthApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  };
+}
+
+/**
+ * Generate Exercise schema for exercise pages
+ */
+export function generateExerciseSchema(
+  exerciseName: string,
+  exerciseId: string,
+  category?: string,
+  muscleGroup?: string
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ExerciseAction',
+    name: exerciseName,
+    identifier: exerciseId,
+    ...(category && { category }),
+    ...(muscleGroup && { muscleGroup }),
+    target: {
+      '@type': 'Muscle',
+      name: muscleGroup || 'Various',
+    },
+  };
+}
+
+/**
+ * Generate BreadcrumbList schema for navigation
+ */
+export function generateBreadcrumbSchema(items: Array<{ name: string; url: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+/**
+ * Generate Organization schema
+ */
+export function generateOrganizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+  };
+}

@@ -49,10 +49,16 @@ export async function saveWorkout(workoutData: WorkoutLog): Promise<void> {
   if (!userId) throw new Error('User not authenticated');
 
   const supabase = createClient();
+  
+  // Generate a proper UUID if not provided or if it's not a valid UUID format
+  const workoutId = workoutData.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(workoutData.id)
+    ? workoutData.id
+    : (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : workoutData.id);
+  
   const { error } = await supabase
     .from('workouts')
     .insert({
-      id: workoutData.id,
+      id: workoutId,
       user_id: userId,
       date: workoutData.date,
       exercise_id: workoutData.exerciseId,
@@ -61,7 +67,7 @@ export async function saveWorkout(workoutData: WorkoutLog): Promise<void> {
 
   if (error) {
     console.error('Error saving workout:', error);
-    throw new Error('Failed to save workout');
+    throw new Error(`Failed to save workout: ${error.message}`);
   }
 }
 
